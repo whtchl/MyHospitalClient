@@ -1,0 +1,13 @@
+<resources>
+    <!-- Default screen margins, per the Android Design guidelines. -->
+    <dimen name="activity_horizontal_margin">16dp</dimen>
+    <dimen name="activity_vertical_margin">16dp</dimen>
+
+    <!--activity_splash.xml-->
+    <dimen name="padding_activity_splash">12dip</dimen>
+    <dimen name="textSize">12sp</dimen>
+    <dimen name="nav_padding_top">50.0dip</dimen>
+    <dimen name="layout_marginTop">10.0dip</dimen>
+    <dimen name="layout_width">16.0dip</dimen>
+
+</resources>

@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">病床呼叫</string>
+
+    <!--activity_splash.xml-->
+    <string name="all_rights_reserved">Copyright © 2016-2020. All Rights Reserved.</string>
+    <string name="setting_about_description">百姓首医，浙东名院</string>
+</resources>
