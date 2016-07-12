@@ -4,4 +4,18 @@
     <!--activity_splash.xml-->
     <string name="all_rights_reserved">Copyright © 2016-2020. All Rights Reserved.</string>
     <string name="setting_about_description">百姓首医，浙东名院</string>
+
+    <!--login_help.xml-->
+    <string name="login_help_information">提示:帐号由ID+@+服务器组成!\n
+   		例如：607@192.168.1.110</string>
+    <string name="coverview_tip">上滑可关闭此界面</string>
+    <string name="hint_account">607@172.16.230.20</string>
+    <string name="account">帐号:</string>
+    <string name="next">下一步</string>
+    <string name="password">密码:</string>
+    <string name="password_input_prompt">请输入密码</string>
+    <string name="open_login">登录</string>
+    <string name="login">登 录</string>
+    <string name="wrong_account">请输入正确的账号</string>
+
 </resources>

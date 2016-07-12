@@ -29,4 +29,24 @@
         <item name="android:windowActionBar" tools:targetApi="11">false</item>
     </style>
 
+    <style name="ColdStart">
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowActionBar" tools:targetApi="11">false</item>
+        <item name="android:windowBackground">@drawable/splash_bg</item>
+    </style>
+
+    <style name="B7_Font">
+        <item name="android:textSize">19.0sp</item>
+        <item name="android:textColor">@color/skin_black</item>
+    </style>
+
+    <style name="B4_Font">
+        <item name="android:textSize">15.0sp</item>
+        <item name="android:textColor">@color/skin_dark_gray</item>
+    </style>
+
+    <style name="login_Font">
+        <item name="android:textSize">15.0sp</item>
+        <item name="android:textColor">#ff777777</item>
+    </style>
 </resources>
