@@ -5,4 +5,5 @@
     <color name="colorAccent">#FF4081</color>
     <color name="color_bai">#ffffffff</color>
     <color name="colorHint">#ff333333</color>
+    <color name="theme_primary">#432e2a</color>
 </resources>

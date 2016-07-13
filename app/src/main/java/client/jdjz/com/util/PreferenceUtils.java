@@ -12,4 +12,11 @@ public class PreferenceUtils {
         final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(context);
         return settings.getString(key,defaultValue);
     }
+
+    public static void setPrefString(Context context, final String key,
+                                     final String value) {
+        final SharedPreferences settings = PreferenceManager
+                .getDefaultSharedPreferences(context);
+        settings.edit().putString(key, value).commit();
+    }
 }

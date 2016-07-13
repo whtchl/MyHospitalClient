@@ -1,17 +1,27 @@
 package client.jdjz.com.myhospitalclient;
 
+import android.app.Dialog;
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.Intent;
+import android.content.ServiceConnection;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.IBinder;
+import android.os.Message;
 import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentActivity;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -22,14 +32,24 @@ import butterknife.ButterKnife;
 import client.jdjz.com.exception.XXAdressMalformedException;
 import client.jdjz.com.util.PreferenceConstants;
 import client.jdjz.com.util.PreferenceUtils;
+import client.jdjz.com.util.T;
 import client.jdjz.com.util.XMPPHelper;
 import android.support.design.widget.Snackbar;
+import android.widget.Toast;
+
+import java.util.concurrent.atomic.AtomicBoolean;
+
 /**
  * Created by tchl on 2016-07-12.
  */
 public class LoginActivity extends FragmentActivity implements
          TextWatcher {
     public static final String TAG = "LoginActivity";
+    private static final int LOGIN_OUT_TIME = 0;
+    private Dialog mLoginDialog;
+    private XXService mXxService;
+
+    private ConnectionOutTimeProcess mLoginOutTimeProcess;
 /*    @Bind(R.id.face)
     ImageView face;*/
     @Bind(R.id.account_input)
@@ -50,14 +70,36 @@ public class LoginActivity extends FragmentActivity implements
     RelativeLayout loginInputView;
     @Bind(R.id.scrollAreaLayout)
     LinearLayout scrollAreaLayout;
+    @Bind(R.id.framelayout)
+    FrameLayout framelayout;
 /*    @Bind(R.id.pulldoor_close_tips)
     TextView pulldoorCloseTips;*/
 
     private Animation mTipsAnimation;
-
-
+    private String mAccount;
+    private String mPassword;
     TextView mTipsTextView;
 
+    private Handler mHandler = new Handler() {
+
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            switch (msg.what) {
+                case LOGIN_OUT_TIME:
+                    if (mLoginOutTimeProcess != null
+                            && mLoginOutTimeProcess.running.get())
+                        mLoginOutTimeProcess.stop();
+                    if (mLoginDialog != null && mLoginDialog.isShowing())
+                        mLoginDialog.dismiss();
+                    T.showShort(LoginActivity.this, R.string.timeout_try_again);
+                    break;
+
+                default:
+                    break;
+            }
+        }
+    };
     private void initView() {
         mTipsAnimation = AnimationUtils.loadAnimation(this, R.anim.connection);
         mTipsTextView = (TextView) findViewById(R.id.pulldoor_close_tips);
@@ -72,12 +114,64 @@ public class LoginActivity extends FragmentActivity implements
         accountInput.addTextChangedListener(this);
     }
 
+
+    public void onLoginClick(View v) {
+        mAccount = accountInput.getText().toString();
+        mAccount = splitAndSaveServer(mAccount);
+        mPassword = password.getText().toString();
+        if (TextUtils.isEmpty(mAccount)) {
+            T.showShort(this, R.string.null_account_prompt);
+            return;
+        }
+        if (TextUtils.isEmpty(mPassword)) {
+            T.showShort(this, R.string.password_input_prompt);
+            return;
+        }
+        if (mLoginOutTimeProcess != null && !mLoginOutTimeProcess.running.get())
+            mLoginOutTimeProcess.start();
+        if (mLoginDialog != null && !mLoginDialog.isShowing())
+            mLoginDialog.show();
+        if (mXxService != null) {
+            mXxService.Login(mAccount, mPassword);
+        }
+    }
+    private void bindXMPPService() {
+        Log.i(TAG, "[SERVICE] Unbind");
+        Intent mServiceIntent = new Intent(this, XXService.class);
+        mServiceIntent.setAction(PreferenceConstants.LOGIN_ACTION);
+        bindService(mServiceIntent, mServiceConnection,
+                Context.BIND_AUTO_CREATE + Context.BIND_DEBUG_UNBIND);
+    }
+
+    private void unbindXMPPService() {
+        try {
+            unbindService(mServiceConnection);
+            Log.i(TAG, "[SERVICE] Unbind");
+        } catch (IllegalArgumentException e) {
+            Log.e(TAG, "Service wasn't bound!");
+        }
+    }
+
+     private String splitAndSaveServer(String account){
+         if(!account.contains("@")){
+             return account;
+         }
+         String customServer = PreferenceUtils.getPrefString(this,PreferenceConstants.CUSTOM_SERVER,"");
+         String[] res = account.split("@");
+         String userName = res[0];
+         String server = res[1];
+         PreferenceUtils.setPrefString(this,PreferenceConstants.Server,server);
+         return userName;
+     }
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        ButterKnife.bind(this);
+
         //StartService(new Intent(LoginActivity.this,XXService.class));
         setContentView(R.layout.loginpage);
+        ButterKnife.bind(this);
+        bindXMPPService();
         initView();
     }
 
@@ -94,6 +188,7 @@ public class LoginActivity extends FragmentActivity implements
     protected void onDestroy() {
         super.onDestroy();
         ButterKnife.unbind(this);
+        unbindXMPPService();
     }
 
     @Override
@@ -116,8 +211,68 @@ public class LoginActivity extends FragmentActivity implements
         } catch (XXAdressMalformedException e) {
             login.setEnabled(false);
             accountInput.setTextColor(Color.RED);
-          //  Snackbar.make(accountInput,getString(R.string.wrong_account),Snackbar.LENGTH_LONG).show();
+            //Snackbar.make(framelayout,getString(R.string.wrong_account),Snackbar.LENGTH_LONG).show();
+            //Toast.makeText(LoginActivity.this, getString(R.string.wrong_account), Toast.LENGTH_LONG).show();
+            //T.showLong(LoginActivity.this,getString(R.string.wrong_account));
+        }
+    }
+
+    // 登录超时处理线程
+    class ConnectionOutTimeProcess implements Runnable{
+        public  AtomicBoolean running = new AtomicBoolean(false);
+        private long startTime = 0L;
+        private Thread thread = null;
+
+        public void run() {
+            while (true) {
+                if (!running.get())
+                    return;
+                if (System.currentTimeMillis() - this.startTime > 20 * 1000L) {
+                    mHandler.sendEmptyMessage(LOGIN_OUT_TIME);
+                }
+                try {
+                    Thread.sleep(10L);
+                } catch (Exception localException) {
+                }
+            }
         }
 
+
+        public void start() {
+            try {
+                this.thread = new Thread(this);
+                running.set(true);
+                this.startTime = System.currentTimeMillis();
+                this.thread.start();
+            } finally {
+            }
+        }
+
+
+        public void stop() {
+            try {
+                running.set(false);
+                this.thread = null;
+                this.startTime = 0L;
+            } finally {
+            }
+        }
     }
+
+    ServiceConnection mServiceConnection = new ServiceConnection() {
+
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            mXxService = ((XXService.XXBinder) service).getService();
+            mXxService.registerConnectionStatusCallback(LoginActivity.this);
+            // 开始连接xmpp服务器
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            mXxService.unRegisterConnectionStatusCallback();
+            mXxService = null;
+        }
+
+    };
 }

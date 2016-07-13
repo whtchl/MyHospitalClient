@@ -16,6 +16,10 @@
     <string name="password_input_prompt">请输入密码</string>
     <string name="open_login">登录</string>
     <string name="login">登 录</string>
+
+    <!--LoginActivity.java-->
     <string name="wrong_account">请输入正确的账号</string>
+    <string name="null_account_prompt">请输入帐号号</string>
+    <string name="timeout_try_again">网络连接超时，请重试</string>
 
 </resources>
