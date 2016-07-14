@@ -21,5 +21,9 @@
     <string name="wrong_account">请输入正确的账号</string>
     <string name="null_account_prompt">请输入帐号号</string>
     <string name="timeout_try_again">网络连接超时，请重试</string>
+    <string name="request_failed">登录失败:</string>
+
+    <!--XXService.java-->
+    <string name="status_online">在线</string>
 
 </resources>

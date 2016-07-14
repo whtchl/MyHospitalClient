@@ -30,6 +30,8 @@ import android.widget.TextView;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import client.jdjz.com.exception.XXAdressMalformedException;
+import client.jdjz.com.service.IConnectionStatusCallback;
+import client.jdjz.com.service.XXService;
 import client.jdjz.com.util.PreferenceConstants;
 import client.jdjz.com.util.PreferenceUtils;
 import client.jdjz.com.util.T;
@@ -43,8 +45,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * Created by tchl on 2016-07-12.
  */
 public class LoginActivity extends FragmentActivity implements
-         TextWatcher {
-    public static final String TAG = "LoginActivity";
+         TextWatcher ,IConnectionStatusCallback {
+    public static final String TAG = "tchl LoginActivity";
+    public static final String LOGIN_ACTION = "com.jdjz.action.LOGIN";
     private static final int LOGIN_OUT_TIME = 0;
     private Dialog mLoginDialog;
     private XXService mXxService;
@@ -138,7 +141,7 @@ public class LoginActivity extends FragmentActivity implements
     private void bindXMPPService() {
         Log.i(TAG, "[SERVICE] Unbind");
         Intent mServiceIntent = new Intent(this, XXService.class);
-        mServiceIntent.setAction(PreferenceConstants.LOGIN_ACTION);
+        mServiceIntent.setAction(LOGIN_ACTION);
         bindService(mServiceIntent, mServiceConnection,
                 Context.BIND_AUTO_CREATE + Context.BIND_DEBUG_UNBIND);
     }
@@ -167,7 +170,7 @@ public class LoginActivity extends FragmentActivity implements
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        System.out.println(TAG+" ---> " + Thread.currentThread().getId());
         //StartService(new Intent(LoginActivity.this,XXService.class));
         setContentView(R.layout.loginpage);
         ButterKnife.bind(this);
@@ -224,6 +227,7 @@ public class LoginActivity extends FragmentActivity implements
         private Thread thread = null;
 
         public void run() {
+            System.out.println(TAG+" ConnectionOutTimeProcess ---> " + Thread.currentThread().getId());
             while (true) {
                 if (!running.get())
                     return;
@@ -275,4 +279,28 @@ public class LoginActivity extends FragmentActivity implements
         }
 
     };
+
+    @Override
+    public void connectionStatusChanged(int connectedState, String reason) {
+        // TODO Auto-generated method stub
+        if (mLoginDialog != null && mLoginDialog.isShowing())
+            mLoginDialog.dismiss();
+        if (mLoginOutTimeProcess != null && mLoginOutTimeProcess.running.get()) {
+            mLoginOutTimeProcess.stop();
+            mLoginOutTimeProcess = null;
+        }
+        if (connectedState == XXService.CONNECTED) {
+            save2Preferences();
+            Log.i(TAG,"client connected service!");
+            //startActivity(new Intent(this, MainActivity.class));
+            //finish();
+        } else if (connectedState == XXService.DISCONNECTED)
+            T.showLong(LoginActivity.this, getString(R.string.request_failed)
+                    + reason);
+    }
+
+    private void save2Preferences() {
+        PreferenceUtils.setPrefString(this, PreferenceConstants.ACCOUNT,mAccount);// 帐号是一直保存的
+        PreferenceUtils.setPrefString(this, PreferenceConstants.PASSWORD,mPassword);
+    }
 }

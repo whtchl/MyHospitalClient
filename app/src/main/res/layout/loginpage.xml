@@ -52,6 +52,7 @@
                         android:singleLine="true"
                         android:textColor="@color/colorHint"
                         android:textSize="18.8dip"
+                        android:text="admin@172.16.230.20"
                         android:imeOptions="actionNext|flagNoExtractUi"/>
                     <TextView
                         android:layout_width="wrap_content"
@@ -88,7 +89,8 @@
                         android:paddingTop="6.0dip"
                         android:textColor="#ff333333"
                         android:textSize="18.8dip"
-                        android:imeOptions="actionDone|flagNoExtractUi"/>
+                        android:imeOptions="actionDone|flagNoExtractUi"
+                        android:text="111111"/>
 
                     <TextView
                         android:id="@+id/textView2"
