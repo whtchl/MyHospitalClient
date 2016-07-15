@@ -10,4 +10,5 @@
     <dimen name="layout_marginTop">10.0dip</dimen>
     <dimen name="layout_width">16.0dip</dimen>
 
+    <dimen name="title_bar_height">48.0dip</dimen>
 </resources>

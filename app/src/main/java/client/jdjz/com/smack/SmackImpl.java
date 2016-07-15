@@ -21,7 +21,7 @@ import client.jdjz.com.util.PreferenceConstants;
 import client.jdjz.com.util.PreferenceUtils;
 
 public class SmackImpl implements Smack {
-    public static final String TAG="SmackImpl";
+    public static final String TAG="tchl SmackImpl";
 	// 客户端名称和类型。主要是向服务器登记，有点类似QQ显示iphone或者Android手机在线的功能
 	public static final String XMPP_IDENTITY_NAME = "XMPP";// 客户端名称
 	public static final String XMPP_IDENTITY_TYPE = "phone";// 客户端类型

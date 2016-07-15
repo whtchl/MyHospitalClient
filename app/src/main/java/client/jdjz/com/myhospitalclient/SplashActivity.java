@@ -16,7 +16,7 @@ public class SplashActivity extends FragmentActivity {
     Runnable gotoMainAct = new Runnable() {
         @Override
         public void run() {
-            //  startActivity(new Intent(SplashActivity.this,MainActivity.class));
+              startActivity(new Intent(SplashActivity.this,MainActivity.class));
             finish();
         }
     };
@@ -35,7 +35,7 @@ public class SplashActivity extends FragmentActivity {
         mHandler = new Handler();
         String password = PreferenceUtils.getPrefString(this, PreferenceConstants.PASSWORD,"");
         if(!TextUtils.isEmpty(password)){
-            //mHandler.postDelayed(gotoMainAct,3000);
+            mHandler.postDelayed(gotoMainAct,3000);
         }else{
             mHandler.postDelayed(gotoLoginAct,3000);
         }

@@ -292,8 +292,8 @@ public class LoginActivity extends FragmentActivity implements
         if (connectedState == XXService.CONNECTED) {
             save2Preferences();
             Log.i(TAG,"client connected service!");
-            //startActivity(new Intent(this, MainActivity.class));
-            //finish();
+            startActivity(new Intent(this, MainActivity.class));
+            finish();
         } else if (connectedState == XXService.DISCONNECTED)
             T.showLong(LoginActivity.this, getString(R.string.request_failed)
                     + reason);

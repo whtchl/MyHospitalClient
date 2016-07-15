@@ -64,4 +64,12 @@ public class XMPPHelper {
 		}
 	}
 
+	public static String splitJidAndServer(String account) {
+		if (!account.contains("@"))
+			return account;
+		String[] res = account.split("@");
+		String userName = res[0];
+		return userName;
+	}
+
 }

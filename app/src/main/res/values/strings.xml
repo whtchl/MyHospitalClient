@@ -26,4 +26,9 @@
     <!--XXService.java-->
     <string name="status_online">在线</string>
 
+
+    <!--MainActivity.java-->
+    <string name="net_error_tip">当前网络不可用，请检查你的网络设置。</string>
+    <string name="login_prompt_msg">连接中...</string>
+    <string name="login_prompt_no">未连接</string>
 </resources>

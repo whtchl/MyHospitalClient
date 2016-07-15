@@ -138,7 +138,11 @@ public class XXService extends Service {
         };
         mConnectingThread.start();
     }
-
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        Log.e(TAG,"onStartCommand");
+        return START_STICKY;
+    }
     /**
      * 非UI线程连接失败反馈
      *
@@ -245,6 +249,13 @@ public class XXService extends Service {
             ((AlarmManager) getSystemService(Context.ALARM_SERVICE))
                     .cancel(mPAlarmIntent);
         }
-
     }
+    // 是否连接上服务器
+    public boolean isAuthenticated() {
+        if (mSmackable != null) {
+            return mSmackable.isAuthenticated();
+        }
+        return false;
+    }
+
 }
